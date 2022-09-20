@@ -21,7 +21,15 @@ export class AppComponent {
   loaded: BehaviorSubject<boolean> = new BehaviorSubject(false);
   constructor() {
     this.provider = new ethers.providers.Web3Provider((window as any).ethereum)
-    const signer = this.provider.getSigner()
+    this.provider.listAccounts().then(accounts => {
+      console.log(accounts);
+      if (accounts.length > 0) {
+        this.walletAddress.next({
+          address: accounts[0]
+        })
+        this.connectWallet();
+      }
+    })
   }
   async connectWallet() {
     // A Web3Provider wraps a standard Web3 provider, which is
@@ -39,7 +47,6 @@ export class AppComponent {
 
     this.contract = new ethers.Contract(environment.contractAddress, environment.abi, signer)
     this.feeds.next(await this.getAllPosts())
-
   }
   async post() {
     if (this.contract == null) return [];
@@ -70,5 +77,8 @@ export class AppComponent {
     this.loading.next(false);
     this.loaded.next(true);
     return this.loadedPosts
+  }
+  getShortenedAddress(address: string) {
+    return (`${address.substring(0, 6)}...${address.substring(address.length - 5)}`)
   }
 }

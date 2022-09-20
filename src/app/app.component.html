@@ -10,7 +10,9 @@
       >
         Connect Wallet
       </div>
-      <div class="button" *ngIf="wallet.address">{{ wallet.address }}</div>
+      <div class="button" *ngIf="wallet.address">
+        {{ getShortenedAddress(wallet.address) }}
+      </div>
     </div>
   </div>
   <div class="feeds">
