@@ -2,8 +2,15 @@
   <div class="header">
     <div class="brand">Social Post</div>
     <div class="nav"></div>
-    <div class="buttons">
-      <div class="button" (click)="connectWallet()">Connect Wallet</div>
+    <div class="buttons" *ngIf="walletAddress | async as wallet">
+      <div
+        class="button"
+        *ngIf="wallet.address == null"
+        (click)="connectWallet()"
+      >
+        Connect Wallet
+      </div>
+      <div class="button" *ngIf="wallet.address">{{ wallet.address }}</div>
     </div>
   </div>
   <div class="feeds">
@@ -12,10 +19,44 @@
       <div class="button" (click)="post()">Post</div>
     </div>
     <div class="feedlist">
+      <ng-container *ngIf="loading | async">
+        <div class="lds-roller">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </ng-container>
       <div class="feed" *ngFor="let post of feeds | async">
-        <div class="owner">{{ post.owner }}</div>
+        <div class="owner">
+          Posted By <span> {{ post.ens || post.owner }}</span>
+        </div>
         <div class="post">{{ post.content }}</div>
       </div>
+    </div>
+    <div
+      *ngIf="loaded | async"
+      class="button outline"
+      style="display: flex"
+      (click)="getAllPosts()"
+    >
+      <div class="text">Load More</div>
+      <!-- <ng-container>
+        <div class="lds-roller sm" style="scale: 0.5">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </ng-container> -->
     </div>
   </div>
 </div>
