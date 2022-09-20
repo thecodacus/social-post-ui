@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  contractAddress: "0xDEA83235596AE7357e876F3A16D9e5eE53EA75D8",
+  contractAddress: "0xfac0b843b459f17330763d8193809e965dc5f543",
   abi: [
     {
       "inputs": [],
@@ -74,6 +74,25 @@ export const environment = {
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_content",
+          "type": "string"
+        }
+      ],
+      "name": "NewPost",
+      "type": "event"
     },
     {
       "anonymous": false,
