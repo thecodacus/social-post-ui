@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { BigNumber, ethers } from "ethers";
+import { BigNumber, ethers, Transaction } from "ethers";
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -19,6 +19,7 @@ export class AppComponent {
   loadedPosts: { owner: string, ens: string | null, content: string }[] = []
   loading: BehaviorSubject<boolean> = new BehaviorSubject(false);
   loaded: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  postPending: BehaviorSubject<boolean> = new BehaviorSubject(false);;
   constructor() {
     this.provider = new ethers.providers.Web3Provider((window as any).ethereum)
     this.provider.listAccounts().then(accounts => {
@@ -47,14 +48,31 @@ export class AppComponent {
 
     this.contract = new ethers.Contract(environment.contractAddress, environment.abi, signer)
     this.feeds.next(await this.getAllPosts())
+    this.contract.on('NewPost', (owner, content) => {
+      this.loadedPosts = [{
+        owner,
+        content,
+        ens: null
+      }, ...this.loadedPosts]
+      this.feeds.next(this.loadedPosts)
+    })
   }
   async post() {
     if (this.contract == null) return [];
     if (this.postField == "" || this.postField == null) return;
-    await this.contract['post'](this.postField);
+    let transaction = await this.contract['post'](this.postField);
+    this.postPending.next(true);
+    this.postField = ""
+    transaction.wait()
+      .then(() => {
+        this.postPending.next(false);
+      })
+      .catch((err: any) => {
+        console.log(err);
+        this.postPending.next(false)
+      })
     return
   }
-
   async getAllPosts() {
     if (this.contract == null) return [];
     this.loading.next(true);
@@ -62,7 +80,7 @@ export class AppComponent {
     let totalcount = totalCountBig.toNumber();
     //offset clunter to load next 10
     totalcount = totalcount - this.loadedCounter;
-    for (let i = totalcount - 1; i >= totalcount - 10 && i >= 0; i--) {
+    for (let i = totalcount - 1; i >= totalcount - 2 && i >= 0; i--) {
       let owner = await this.contract['ownerOf'](i);
       let content = await this.contract['getContentByTokenId'](i);
       let ens = null;

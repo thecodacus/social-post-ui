@@ -18,10 +18,21 @@
   <div class="feeds">
     <div class="inputsection">
       <input type="text" [(ngModel)]="postField" class="input" />
-      <div class="button" (click)="post()">Post</div>
+      <div *ngIf="!(postPending | async)" class="button" (click)="post()">
+        Post
+      </div>
+      <div *ngIf="postPending | async" class="button">
+        Posting
+        <div class="lds-ring" style="zoom: 0.25">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
     </div>
     <div class="feedlist">
-      <ng-container *ngIf="loading | async">
+      <ng-container *ngIf="!(loaded | async) && (loading | async)">
         <div class="lds-roller">
           <div></div>
           <div></div>
@@ -48,8 +59,8 @@
       (click)="getAllPosts()"
     >
       <div class="text">Load More</div>
-      <!-- <ng-container>
-        <div class="lds-roller sm" style="scale: 0.5">
+      <ng-container *ngIf="loading | async">
+        <div class="lds-roller" style="zoom: 0.25">
           <div></div>
           <div></div>
           <div></div>
@@ -59,7 +70,7 @@
           <div></div>
           <div></div>
         </div>
-      </ng-container> -->
+      </ng-container>
     </div>
   </div>
 </div>

@@ -84,6 +84,25 @@ export const environment = {
         {
           "indexed": true,
           "internalType": "address",
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_content",
+          "type": "string"
+        }
+      ],
+      "name": "NewPost",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
           "name": "previousOwner",
           "type": "address"
         },
@@ -481,7 +500,7 @@ export const environment = {
       "type": "function"
     }
   ],
-  contractAddress: "0x0c90aC8b90596a357ae2FdB6128ffdbf822C4AAA"
+  contractAddress: "0x7F7D251Ec8b82c6f90774df3aA9b02A1653c74f2"
 };
 
 /*
