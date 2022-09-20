@@ -35,7 +35,8 @@
       </ng-container>
       <div class="feed" *ngFor="let post of feeds | async">
         <div class="owner">
-          Posted By <span> {{ post.ens || post.owner }}</span>
+          <label> Posted By </label>
+          <span> {{ post.ens || post.owner }}</span>
         </div>
         <div class="post">{{ post.content }}</div>
       </div>

@@ -11,6 +11,9 @@
         color: white;
         font-weight: 600;
         cursor: pointer;
+        *{
+            cursor: pointer;
+        }
     }
     .button.outline{
         background: transparent;
@@ -80,15 +83,18 @@
                     border-radius: 1.5rem;
                     padding: 0.5rem;
                     display: flex;
+                    gap: 0.5rem;
+                    font-size: smaller;
                     span{
                         display: block;
                         max-width: 20rem;
                         overflow-x: clip;
+                        color: rgb(253 113 162);
                     }
     
                 }
                 .post{
-                    border: thin solid #d3d3d3;
+                    border: thin none #d3d3d3;
                     border-radius: 1.5rem;
                     padding: 0.5rem;
                     // display: flex;
