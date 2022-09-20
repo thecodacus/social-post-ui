@@ -17,7 +17,7 @@
   </div>
   <div class="feeds">
     <div class="inputsection">
-      <input type="text" [(ngModel)]="postField" class="input" />
+      <textarea type="text" [(ngModel)]="postField" class="input"></textarea>
       <div *ngIf="!(postPending | async)" class="button" (click)="post()">
         Post
       </div>
