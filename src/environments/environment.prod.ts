@@ -1,6 +1,8 @@
 export const environment = {
   production: true,
   contractAddress: "0xfac0b843b459f17330763d8193809e965dc5f543",
+  chainId: 137,
+  chainName: "Matic Mainnet",
   abi: [
     {
       "inputs": [],
@@ -497,4 +499,5 @@ export const environment = {
       "type": "function"
     }
   ]
+
 };

@@ -500,7 +500,9 @@ export const environment = {
       "type": "function"
     }
   ],
-  contractAddress: "0x7F7D251Ec8b82c6f90774df3aA9b02A1653c74f2"
+  contractAddress: "0x7F7D251Ec8b82c6f90774df3aA9b02A1653c74f2",
+  chainId: 80001,
+  chainName: "Matic Mumbai Testnet",
 };
 
 /*

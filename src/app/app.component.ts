@@ -19,32 +19,70 @@ export class AppComponent {
   loadedPosts: { owner: string, ens: string | null, content: string }[] = []
   loading: BehaviorSubject<boolean> = new BehaviorSubject(false);
   loaded: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  postPending: BehaviorSubject<boolean> = new BehaviorSubject(false);;
+  postPending: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  isCorrectChain: boolean = true;
+  chainName: string = ""
   constructor() {
-    this.provider = new ethers.providers.Web3Provider((window as any).ethereum)
-    this.provider.listAccounts().then(accounts => {
-      console.log(accounts);
-      if (accounts.length > 0) {
-        this.walletAddress.next({
-          address: accounts[0]
-        })
-        this.connectWallet();
+    let ethereum = (window as any).ethereum
+    if (ethereum == null) return;
+    this.chainName = environment.chainName;
+
+    this.provider = new ethers.providers.Web3Provider((window as any).ethereum, "any")
+    Promise.all([this.provider.getNetwork(), this.provider.listAccounts()])
+      .then(([network, accounts]) => {
+        console.log(network, accounts);
+        if (network.chainId != environment.chainId) {
+          this.isCorrectChain = false;
+          return;
+        }
+        this.isCorrectChain = true;
+        if (accounts.length > 0) {
+          this.walletAddress.next({
+            address: accounts[0]
+          })
+          this.connectWallet();
+        }
+      })
+    // network change handler
+    this.provider.on("network", (newNetwork, oldNetwork) => {
+      // When a Provider makes its initial connection, it emits a "network"
+      // event with a null oldNetwork along with the newNetwork. So, if the
+      // oldNetwork exists, it represents a changing network
+      if (oldNetwork) {
+        window.location.reload();
       }
+    });
+    (window as any).ethereum.on("accountsChanged", (accounts: any) => {
+      console.log(accounts);
+      if (accounts[0]) this.walletAddress.next({ address: accounts[0] })
+      else {
+        this.walletAddress.next({ address: null })
+        this.contract = null;
+      }
+      /* do what you want here */
     })
   }
   async connectWallet() {
     // A Web3Provider wraps a standard Web3 provider, which is
     // what MetaMask injects as window.ethereum into each page
-    const provider = new ethers.providers.Web3Provider((window as any).ethereum)
+    if (this.provider == null) {
+      this.provider = new ethers.providers.Web3Provider((window as any).ethereum, "any");
+    }
 
     // MetaMask requires requesting permission to connect users accounts
-    let addresses = await provider.send("eth_requestAccounts", []);
+    let addresses = await this.provider.send("eth_requestAccounts", []);
     if (addresses[0]) this.walletAddress.next({ address: addresses[0] })
+    let network = await this.provider.getNetwork();
+    if (network.chainId != environment.chainId) {
+      this.isCorrectChain = false;
+      return;
+    }
+    this.isCorrectChain = true;
 
     // The MetaMask plugin also allows signing transactions to
     // send ether and pay to change state within the blockchain.
     // For this, you need the account signer...
-    const signer = provider.getSigner()
+    const signer = this.provider.getSigner()
 
     this.contract = new ethers.Contract(environment.contractAddress, environment.abi, signer)
     this.feeds.next(await this.getAllPosts())
@@ -60,17 +98,18 @@ export class AppComponent {
   async post() {
     if (this.contract == null) return [];
     if (this.postField == "" || this.postField == null) return;
-    let transaction = await this.contract['post'](this.postField);
-    this.postPending.next(true);
-    this.postField = ""
-    transaction.wait()
-      .then(() => {
-        this.postPending.next(false);
-      })
-      .catch((err: any) => {
-        console.log(err);
-        this.postPending.next(false)
-      })
+    try {
+      let transaction = await this.contract['post'](this.postField);
+      this.postPending.next(true);
+      this.postField = ""
+      await transaction.wait();
+
+      this.postPending.next(false);
+    }
+    catch (err: any) {
+      console.log(err);
+      this.postPending.next(false)
+    }
     return
   }
   async getAllPosts() {
